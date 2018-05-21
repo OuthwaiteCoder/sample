@@ -6,9 +6,16 @@ use Illuminate\Http\Request;
 use Auth;
 class SessionsController extends Controller
 {
-    public function create()
+
+    public function __construct()
     {
-        return view('sessions.create');
+        $this->middleware('guest', [
+            'only' => ['login']                  
+        ]);
+    }
+    public function login()
+    {
+        return view('sessions.login');
     }
 
     public function store(Request $request)
@@ -20,7 +27,7 @@ class SessionsController extends Controller
 
        if (Auth::attempt($credentials,$request->has('remember'))) {
            session()->flash('success', '欢迎回来！');
-           return redirect()->route('users.show', [Auth::user()]);
+           return redirect()->intended(route('users.show', [Auth::user()]));      //intended重定向至上一次请求尝试访问的页面
        } else {
            session()->flash('danger', '很抱歉，您的邮箱和密码不匹配');
            return redirect()->back();
